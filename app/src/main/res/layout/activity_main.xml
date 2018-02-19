@@ -65,14 +65,16 @@
             android:layout_marginRight="6dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+
             />
+
         <Button
             android:id="@+id/btnRegister"
             android:background="@drawable/btn_register_background"
             android:textColor="@color/btnRegister"
             android:text="REGISTER"
             android:layout_weight="1"
-            android:layout_marginleft="6dp"
+            android:layout_marginLeft="6dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             />
