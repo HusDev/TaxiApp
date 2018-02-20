@@ -36,6 +36,10 @@ dependencies {
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
 // custom font
     compile 'uk.co.chrisjenx:calligraphy:2.3.0'
+
+    compile 'com.android.support:cardview-v7:26.0.2'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
