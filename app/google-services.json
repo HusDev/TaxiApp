@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:498408307300:android:d0525f4af0c19529",
         "android_client_info": {
-          "package_name": "com.blackbox.husbs.taxi"
+          "package_name": "com.dapp.husbs.taxtax"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "498408307300-5ila2at9uv67j4s0b9327r4qlqk5spik.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.blackbox.husbs.taxi",
+            "package_name": "com.dapp.husbs.taxtax",
             "certificate_hash": "23e674773c0ec58d33dc5f04e97e7d73d5d6b4bf"
           }
         },
