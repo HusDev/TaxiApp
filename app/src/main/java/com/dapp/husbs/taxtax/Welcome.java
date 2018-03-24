@@ -29,10 +29,15 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlacesOptions;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -99,8 +104,8 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
     private Handler handler ;
     private LatLng startPosition,endPosition, currentPosition ;
     private int index,next ;
-    private Button btnGo  ;
-    private EditText edtPlace ;
+    // private Button btnGo  ;
+    private PlaceAutocompleteFragment places;
     private String destintaion  ;
     private PolylineOptions polylineOptions,blackPolyLineOptions ;
     private Polyline blackPolyline,greyPolyLine ;
@@ -125,7 +130,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                 public void onAnimationUpdate(ValueAnimator animation) {
                         v= valueAnimator.getAnimatedFraction();
                         lng = v*endPosition.longitude+(1-v)*startPosition.longitude ;
-                        lat  = v*endPosition.latitude+(1-v)*startPosition.latitude ;
+                        lat = v*endPosition.latitude+(1-v)*startPosition.latitude ;
                     LatLng newPos = new LatLng(lat,lng) ;
                     carMarker.setPosition(newPos);
                     carMarker.setAnchor(0.5f,0.5f);
@@ -192,17 +197,27 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
         });
 
         polyLineList = new ArrayList<>();
-        btnGo = (Button) findViewById(R.id.btnGo) ;
-        edtPlace = (EditText) findViewById(R.id.editPlace) ;
-        btnGo.setOnClickListener(new View.OnClickListener() {
+        //        places API
+        places = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment) ;
+        places.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onClick(View v) {
-             destintaion = edtPlace.getText().toString() ;
-             destintaion = destintaion.replace(" ", "+") ;
-             Log.d("EDMTDEV",destintaion) ;
-             getDirection();
+            public void onPlaceSelected(Place place) {
+                if (location_switch.isChecked()){
+                    destintaion  = place.getAddress().toString() ;
+                    destintaion  = destintaion.replace(" ","+") ;
+                    getDirection();
+                }else{
+                    Toast.makeText(Welcome.this, "Please change your status to ONLINE", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(Welcome.this, ""+status.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+
+
 //        Geo Fire
         drivers = FirebaseDatabase.getInstance().getReference("Drivers") ;
         geoFire = new GeoFire(drivers) ;
@@ -236,16 +251,21 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                 public void onResponse(Call<String> call, Response<String> response) {
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().toString()) ;
-                        Log.d("taaaaaaaaag","this is ths object: "+ jsonObject);
-                        JSONObject jsonArray = jsonObject.getJSONObject("routes") ;
-                        for (int i =0 ; i<jsonArray.length() ; i++){
-//                            TODO: "i" should be int
-                            JSONObject route = jsonArray.getJSONObject(String.valueOf(i));
+
+                        JSONArray jsonArray = jsonObject.getJSONArray("routes") ;
+                        Log.d("okokokokokokok"," "+ jsonArray) ;
+
+
+                        for (int i =0 ; i < jsonArray.length() ; i++){
+
+                            JSONObject route = jsonArray.getJSONObject(i);
                             JSONObject poly = route.getJSONObject("overview_polyline") ;
-                            String polyline =  poly.getString("point") ;
+                            String polyline  = poly.getString("points") ;
                             polyLineList = decodePoly(polyline);
+                            Log.d("Route" , "" + route);
                         }
-//                    Adjusting bounds
+
+                        //                    Adjusting bounds
                         LatLngBounds.Builder  builder = new LatLngBounds.Builder() ;
                         for (LatLng latLng:polyLineList){
                             builder.include(latLng) ;
@@ -305,6 +325,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
                     Toast.makeText(Welcome.this, ""+t.getMessage(), Toast.LENGTH_SHORT).show();
+
                 }
             });
 
